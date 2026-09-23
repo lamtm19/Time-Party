@@ -8,14 +8,17 @@ import type { GameConfig, GameState } from "@/types/game";
 export const ROUNDS = [
   {
     title: "Plusieurs mots",
+    icon: "💬",
     rule: "Faites deviner la carte avec autant de mots que vous voulez, sans dire le mot écrit dessus.",
   },
   {
     title: "Un seul mot",
+    icon: "☝️",
     rule: "Un seul mot pour faire deviner, pas un de plus. Pas de gestes !",
   },
   {
     title: "Mimes",
+    icon: "🎭",
     rule: "Aucun mot : uniquement des mimes et des gestes.",
   },
 ];
@@ -119,15 +122,16 @@ export function validateTurn(state: GameState): GameState {
   };
 }
 
-// Manche suivante : mêmes cartes, complètement remélangées, et nouveau tirage de l'équipe qui commence
+// Manche suivante : mêmes cartes, complètement remélangées.
+// Pas de nouveau tirage : c'est l'équipe qui suit celle qui a terminé la manche qui commence
+// (validateTurn a déjà passé la main à cette équipe).
 export function nextRound(state: GameState): GameState {
   if (state.round >= ROUNDS.length - 1) return { ...state, phase: "end" };
   return {
     ...state,
     round: state.round + 1,
     deck: shuffle(state.config.cards),
-    currentTeam: randomInt(state.config.teams.length),
-    phase: "draw",
+    phase: "ready",
   };
 }
 

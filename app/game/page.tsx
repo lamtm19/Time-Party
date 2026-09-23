@@ -113,28 +113,16 @@ export default function GamePage() {
 
   if (game.phase === "roundEnd") {
     const isLast = game.round === ROUNDS.length - 1;
-    const roundRanking = game.config.teams
-      .map((t, i) => ({ team: t, index: i, score: game.scores[game.round][i] }))
-      .sort((a, b) => b.score - a.score);
-    const totalRanking = getRanking(game);
-
     return (
       <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-5 px-5 py-8">
         <div className="animate-pop text-center">
           <p className="text-lg font-semibold text-muted uppercase">
-            Manche {game.round + 1} · {round.title}
+            {round.icon} Manche {game.round + 1} · {round.title}
           </p>
           <h1 className="text-5xl font-bold">Manche terminée !</h1>
         </div>
 
-        <ScoreList
-          title="Score de la manche"
-          rows={roundRanking.map((r) => ({ index: r.index, name: r.team.name, value: `${r.score} carte${r.score > 1 ? "s" : ""}` }))}
-        />
-        <ScoreList
-          title="Total"
-          rows={totalRanking.map((r) => ({ index: r.index, name: r.team.name, value: `${r.total}` }))}
-        />
+        <Scoreboard game={game} />
 
         <Button className="mt-auto py-5! text-xl!" onClick={() => update(nextRound)}>
           {isLast ? "🏆 Voir le résultat" : `Manche ${game.round + 2} : ${ROUNDS[game.round + 1].title}`}
@@ -386,22 +374,5 @@ function DeckCount({ count }: { count: number }) {
       </span>
       {count} carte{count > 1 ? "s" : ""} restante{count > 1 ? "s" : ""}
     </p>
-  );
-}
-
-function ScoreList({ title, rows }: { title: string; rows: { index: number; name: string; value: string }[] }) {
-  return (
-    <section className="rounded-3xl bg-white p-4 shadow-md ring-1 ring-ink/5">
-      <h2 className="mb-2 text-lg font-semibold text-muted">{title}</h2>
-      <ul className="flex flex-col gap-2">
-        {rows.map((row) => (
-          <li key={row.index} className="flex items-center gap-3 text-xl font-semibold">
-            <TeamDot index={row.index} />
-            <span className="flex-1 truncate">{row.name}</span>
-            <span className="font-bold tabular-nums">{row.value}</span>
-          </li>
-        ))}
-      </ul>
-    </section>
   );
 }
