@@ -7,6 +7,7 @@ const fredoka = Fredoka({ subsets: ["latin"], variable: "--font-fredoka" });
 export const metadata: Metadata = {
   title: "Time Party",
   description: "Le party game à jouer sur un seul téléphone : faites deviner, mimez, gagnez !",
+  appleWebApp: { title: "Time Party" },
 };
 
 export const viewport: Viewport = {
