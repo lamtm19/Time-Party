@@ -70,11 +70,46 @@ export function Modal({ children, onClose }: { children: React.ReactNode; onClos
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/50 sm:items-center sm:p-6" onClick={onClose}>
       <div
-        className="animate-fade-up max-h-dvh w-full max-w-md overflow-y-auto rounded-t-3xl bg-cream p-6 sm:rounded-3xl"
+        className="animate-fade-up max-h-dvh w-full max-w-md overflow-y-auto rounded-t-3xl bg-cream p-6 text-ink sm:rounded-3xl"
         onClick={(e) => e.stopPropagation()}
       >
         {children}
       </div>
     </div>
+  );
+}
+
+// Fenêtre de confirmation aux couleurs du jeu (remplace le confirm() du navigateur)
+export function ConfirmDialog({
+  emoji,
+  title,
+  message,
+  confirmLabel,
+  cancelLabel = "Annuler",
+  onConfirm,
+  onCancel,
+}: {
+  emoji: string;
+  title: string;
+  message: string;
+  confirmLabel: string;
+  cancelLabel?: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <Modal onClose={onCancel}>
+      <p className="animate-pop text-center text-6xl">{emoji}</p>
+      <h2 className="mt-3 text-center text-3xl font-bold">{title}</h2>
+      <p className="mt-2 mb-6 text-center text-lg text-muted">{message}</p>
+      <div className="grid grid-cols-2 gap-3">
+        <Button variant="secondary" onClick={onCancel}>
+          {cancelLabel}
+        </Button>
+        <Button className="bg-[#E5383B]! shadow-[#E5383B]/30!" onClick={onConfirm}>
+          {confirmLabel}
+        </Button>
+      </div>
+    </Modal>
   );
 }

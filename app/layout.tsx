@@ -14,6 +14,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
+  viewportFit: "cover", // utilise tout l'écran, y compris autour de l'encoche
   themeColor: "#fbf6ee",
 };
 

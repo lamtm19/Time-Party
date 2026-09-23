@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import GameCard from "@/components/GameCard";
 import Scoreboard from "@/components/Scoreboard";
 import Timer from "@/components/Timer";
-import { Button, TeamDot } from "@/components/ui";
+import { Button, ConfirmDialog, TeamDot } from "@/components/ui";
 import { beep, unlockAudio, vibrate } from "@/lib/feedback";
 import {
   cancelFound,
@@ -27,6 +27,7 @@ export default function GamePage() {
   const router = useRouter();
   const [game, setGame] = useState<GameState | null>(null);
   const [now, setNow] = useState(() => Date.now());
+  const [confirmQuit, setConfirmQuit] = useState(false);
 
   // Chargement de la partie sauvegardée (créée par la page de configuration)
   useEffect(() => {
@@ -81,18 +82,27 @@ export default function GamePage() {
     }
   }, [secondsLeft, phase]);
 
+  // La barre du téléphone (heure, batterie) prend la couleur de l'écran, comme une vraie app
+  const screenColor =
+    game && game.phase !== "roundEnd" && game.phase !== "end" ? teamColor(game.currentTeam).bg : "#fbf6ee";
+  useEffect(() => {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    meta?.setAttribute("content", screenColor);
+    document.documentElement.style.backgroundColor = screenColor;
+    document.body.style.backgroundColor = screenColor;
+    return () => {
+      meta?.setAttribute("content", "#fbf6ee");
+      document.documentElement.style.backgroundColor = "";
+      document.body.style.backgroundColor = "";
+    };
+  }, [screenColor]);
+
   if (!game) return null;
 
   const update = (fn: (g: GameState) => GameState) => setGame((g) => g && fn(g));
   const color = teamColor(game.currentTeam);
   const team = game.config.teams[game.currentTeam];
   const round = ROUNDS[game.round];
-
-  function quit() {
-    if (!confirm("Quitter la partie en cours ?")) return;
-    remove(STORAGE_KEYS.game);
-    router.push("/");
-  }
 
   function leave(to: string) {
     remove(STORAGE_KEYS.game);
@@ -185,11 +195,11 @@ export default function GamePage() {
       className="flex min-h-dvh flex-col transition-colors duration-500"
       style={{ backgroundColor: color.bg, color: color.text }}
     >
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-5 pt-4 pb-6">
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-5 pt-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
         {/* Titre de la manche, toujours visible */}
         <header className="flex items-center gap-3">
           <button
-            onClick={quit}
+            onClick={() => setConfirmQuit(true)}
             className="flex size-10 shrink-0 items-center justify-center rounded-full bg-black/15 text-xl active:scale-90"
             aria-label="Quitter"
           >
@@ -302,6 +312,18 @@ export default function GamePage() {
           </div>
         )}
       </div>
+
+      {confirmQuit && (
+        <ConfirmDialog
+          emoji="🚪"
+          title="Quitter la partie ?"
+          message="La partie en cours et les scores seront perdus."
+          confirmLabel="Quitter"
+          cancelLabel="Continuer"
+          onConfirm={() => leave("/")}
+          onCancel={() => setConfirmQuit(false)}
+        />
+      )}
     </main>
   );
 }

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import CardCountPicker from "@/components/CardCountPicker";
 import CustomCards from "@/components/CustomCards";
 import TeamSetup from "@/components/TeamSetup";
-import { Button, Panel, TeamDot } from "@/components/ui";
+import { Button, ConfirmDialog, Panel, TeamDot } from "@/components/ui";
 import { words } from "@/data/words";
 import { createGame, DEFAULT_PLAYER_COUNT, MAX_CARDS, MIN_CARDS, pickClassicWords, TURN_DURATIONS } from "@/lib/game";
 import { load, save, STORAGE_KEYS } from "@/lib/storage";
@@ -27,6 +27,7 @@ export default function SetupPage({ searchParams }: Props) {
   const [cardCount, setCardCount] = useState(DEFAULT_PLAYER_COUNT * 10);
   const [customCards, setCustomCards] = useState<string[]>([]);
   const [turnDuration, setTurnDuration] = useState(TURN_DURATIONS[0]);
+  const [confirmBack, setConfirmBack] = useState(false);
 
   const maxCards = mode === "classic" ? words.length : MAX_CARDS;
 
@@ -56,12 +57,14 @@ export default function SetupPage({ searchParams }: Props) {
   function goBack() {
     if (step === "teams") return router.push("/");
     if (step === "cardCount") return setStep("teams");
-    if (step === "writing" || (step === "summary" && mode === "custom")) {
-      if (customCards.length > 0 || step === "writing") {
-        if (!confirm("Les cartes déjà écrites seront perdues. Revenir en arrière ?")) return;
-      }
-      setCustomCards([]);
-    }
+    // En mode personnalisé, revenir en arrière efface les cartes écrites : on demande d'abord
+    if (step === "writing" || (step === "summary" && mode === "custom")) return setConfirmBack(true);
+    setStep("cardCount");
+  }
+
+  function discardCards() {
+    setCustomCards([]);
+    setConfirmBack(false);
     setStep("cardCount");
   }
 
@@ -174,6 +177,17 @@ export default function SetupPage({ searchParams }: Props) {
             Commencer la partie
           </Button>
         </div>
+      )}
+
+      {confirmBack && (
+        <ConfirmDialog
+          emoji="🃏"
+          title="Revenir en arrière ?"
+          message="Les cartes déjà écrites seront perdues."
+          confirmLabel="Effacer"
+          onConfirm={discardCards}
+          onCancel={() => setConfirmBack(false)}
+        />
       )}
     </main>
   );
