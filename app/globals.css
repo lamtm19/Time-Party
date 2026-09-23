@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-fredoka), ui-rounded, system-ui, sans-serif;
+  --color-cream: #fbf6ee;
+  --color-ink: #1f1b2e;
+  --color-muted: #7a7489;
+
+  --animate-pop: pop 0.25s ease-out;
+  --animate-fade-up: fade-up 0.35s ease-out;
+  --animate-pulse-fast: pulse-fast 0.5s ease-in-out infinite;
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-fast {
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+html,
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
