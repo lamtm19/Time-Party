@@ -192,7 +192,7 @@ export default function GamePage() {
 
   return (
     <main
-      className="flex min-h-dvh flex-col transition-colors duration-500"
+      className={`flex min-h-dvh flex-col ${game.phase === "draw" ? "" : "transition-colors duration-500"}`}
       style={{ backgroundColor: color.bg, color: color.text }}
     >
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-5 pt-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
@@ -343,20 +343,20 @@ function StartingTeamDraw({
   const count = game.config.teams.length;
 
   useEffect(() => {
+    // Les couleurs défilent de plus en plus lentement et s'arrêtent sur l'équipe tirée
+    const minSteps = 14;
+    const total = minSteps + (((target - minSteps) % count) + count) % count;
     let step = 0;
-    const id = setInterval(() => {
+    let timeout: ReturnType<typeof setTimeout>;
+    const tick = () => {
       step++;
       onPreview(step % count);
-    }, 110);
-    const stop = setTimeout(() => {
-      clearInterval(id);
-      onPreview(target);
-      setSpinning(false);
-    }, 2200);
-    return () => {
-      clearInterval(id);
-      clearTimeout(stop);
+      if (step >= total) return setSpinning(false);
+      const progress = step / total;
+      timeout = setTimeout(tick, 70 + progress * progress * 330);
     };
+    timeout = setTimeout(tick, 70);
+    return () => clearTimeout(timeout);
   }, []);
 
   return (

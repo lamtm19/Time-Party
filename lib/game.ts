@@ -119,14 +119,15 @@ export function validateTurn(state: GameState): GameState {
   };
 }
 
-// Manche suivante : mêmes cartes, complètement remélangées
+// Manche suivante : mêmes cartes, complètement remélangées, et nouveau tirage de l'équipe qui commence
 export function nextRound(state: GameState): GameState {
   if (state.round >= ROUNDS.length - 1) return { ...state, phase: "end" };
   return {
     ...state,
     round: state.round + 1,
     deck: shuffle(state.config.cards),
-    phase: "ready",
+    currentTeam: randomInt(state.config.teams.length),
+    phase: "draw",
   };
 }
 
